@@ -1,37 +1,67 @@
 [app]
+
+# اسم التطبيق
 title = Currency Converter Pro
-package.name = currencyconverterpro
-package.domain = org.abdoudesigner
 
+# اسم الحزمة
+package.name = currencyconverter
+
+# نطاق الحزمة
+package.domain = org.abdou
+
+# مجلد الكود
 source.dir = .
-source.include_exts = py,png,jpg,kv,atlas,json,mp3,ttf
 
+# الملفات المضمنة — أضفنا mp3 و json
+source.include_exts = py,png,jpg,kv,atlas,mp3,json
+
+# إصدار التطبيق
 version = 1.0
 
-requirements = python3,kivy==2.3.0,requests,kivmob
+# المكتبات المطلوبة — هذا هو الأهم!
+requirements = python3,kivy,kivmob,requests,android
 
-# ملفات الصور و الصوت المطلوبة
-source.include_patterns = *.png,*.jpg,*.mp3,*.json
-
+# الاتجاه
 orientation = portrait
+
+# ملء الشاشة
 fullscreen = 0
 
-android.permissions = INTERNET, ACCESS_NETWORK_STATE
-android.api = 34
+# الصلاحيات — الإنترنت ضروري لجلب أسعار العملات
+android.permissions = INTERNET
+
+# API المستهدف
+android.api = 33
+
+# الحد الأدنى
 android.minapi = 21
+
+# إصدار NDK
 android.ndk = 25b
-android.sdk = 34
-android.ndk_api = 21
 
-# ✅ مهم لـ KivMob و AdMob
-android.gradle_dependencies = com.google.android.gms:play-services-ads:22.6.0
-android.enable_androidx = True
-android.add_aars = kivmob-0.2.aar
+# قبول الرخصة تلقائياً
+android.accept_sdk_license = True
 
+# المعمارية (arm64 للهواتف الحديثة + armeabi للقديمة)
 android.archs = arm64-v8a, armeabi-v7a
 
-log_level = 2
-warn_on_root = 1
+# النسخ الاحتياطي
+android.allow_backup = True
+
+#
+# OSX (اتركها كما هي)
+#
+osx.python_version = 3
+osx.kivy_version = 1.9.1
+
+#
+# iOS (اتركها كما هي)
+#
+ios.kivy_ios_url = https://github.com/kivy/kivy-ios
+ios.kivy_ios_branch = master
+ios.ios_deploy_url = https://github.com/phonegap/ios-deploy
+ios.ios_deploy_branch = 1.10.0
+ios.codesign.allowed = false
 
 [buildozer]
 log_level = 2
