@@ -11,49 +11,55 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-
-    - name: Install system dependencies
+    - name: Install Buildozer dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y \
-          git zip unzip openjdk-17-jdk \
-          python3-pip autoconf libtool \
-          libffi-dev libssl-dev \
-          libltdl-dev pkg-config \
-          build-essential ccache
+          python3 python3-pip \
+          build-essential git \
+          ffmpeg libsdl2-dev libsdl2-image-dev \
+          libsdl2-mixer-dev libsdl2-ttf-dev \
+          libportmidi-dev libswscale-dev \
+          libavformat-dev libavcodec-dev \
+          zlib1g-dev libgstreamer1.0-dev \
+          gstreamer1.0-plugins-base \
+          autoconf libtool pkg-config \
+          zip unzip openjdk-17-jdk \
+          libffi-dev libssl-dev
 
-    - name: Install Python dependencies
+    - name: Install Python packages
       run: |
-        pip install --upgrade pip
-        pip install buildozer cython virtualenv
+        pip3 install --upgrade pip setuptools
+        pip3 install buildozer==1.5.0
+        pip3 install cython==0.29.33
 
-    - name: Accept Android SDK licenses
+    - name: Set JAVA_HOME
       run: |
-        mkdir -p $HOME/.buildozer/android/platform/android-sdk/licenses
-        printf "24333f8a63b6825ea9c5514f83c2829b004d1fee\n8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb78af6dfcb131a6481e" \
-          > $HOME/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
-        printf "84831b9409646a918e30573bab4c9c91346d8abd\n504667f4c0de7af1a06de9f4b1727b84351f2910" \
-          > $HOME/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
+        echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> $GITHUB_ENV
+        echo "/usr/lib/jvm/java-17-openjdk-amd64/bin" >> $GITHUB_PATH
 
-    - name: Build APK with Buildozer
-      env:
-        JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+    - name: Pre-accept Android licenses
       run: |
-        buildozer -v android debug 2>&1 | tee buildozer.log
+        mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+        echo -e "\n24333f8a63b6825ea9c5514f83c2829b004d1fee" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+        echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
+
+    - name: Build debug APK
+      run: |
+        yes | buildozer -v android debug 2>&1 | tee build.log
+        echo "Build finished"
+        ls -la bin/ || echo "No bin folder"
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: Currency-Converter-APK
         path: bin/*.apk
+        if-no-files-found: warn
 
-    - name: Upload log on failure
-      if: failure()
+    - name: Upload build log
+      if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: buildozer-log
-        path: buildozer.log
+        name: build-log
+        path: build.log
