@@ -11,47 +11,49 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install Python
+    - name: Set up Python 3.10
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
 
-    - name: Install dependencies
+    - name: Install system dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y \
-          python3-pip zip unzip openjdk-17-jdk \
-          libffi-dev libssl-dev autoconf libtool
+          git zip unzip openjdk-17-jdk \
+          python3-pip autoconf libtool \
+          libffi-dev libssl-dev \
+          libltdl-dev pkg-config \
+          build-essential ccache
+
+    - name: Install Python dependencies
+      run: |
+        pip install --upgrade pip
         pip install buildozer cython virtualenv
 
-    - name: Accept Android licenses
+    - name: Accept Android SDK licenses
       run: |
-        mkdir -p $HOME/.android
-        echo "count=0" > $HOME/.android/repositories.cfg
-        yes | sudo apt-get install -y sdkmanager || true
-        pip install buildozer
         mkdir -p $HOME/.buildozer/android/platform/android-sdk/licenses
-        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" \
+        printf "24333f8a63b6825ea9c5514f83c2829b004d1fee\n8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb78af6dfcb131a6481e" \
           > $HOME/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
-        echo "84831b9409646a918e30573bab4c9c91346d8abd" \
-          >> $HOME/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
-        echo "d975f751698a77b662f1254ddbeed3901e976f5a" \
+        printf "84831b9409646a918e30573bab4c9c91346d8abd\n504667f4c0de7af1a06de9f4b1727b84351f2910" \
           > $HOME/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
 
-    - name: Build APK
+    - name: Build APK with Buildozer
+      env:
+        JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
       run: |
-        export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-        buildozer android debug 2>&1 | tee build.log
+        buildozer -v android debug 2>&1 | tee buildozer.log
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: app-debug
+        name: Currency-Converter-APK
         path: bin/*.apk
 
-    - name: Upload log if failed
+    - name: Upload log on failure
       if: failure()
       uses: actions/upload-artifact@v4
       with:
-        name: build-log
-        path: build.log
+        name: buildozer-log
+        path: buildozer.log
