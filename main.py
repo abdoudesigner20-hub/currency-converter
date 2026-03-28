@@ -188,7 +188,7 @@ class EnhancedBankUI(BoxLayout):
         title_box = BoxLayout(size_hint_y=0.091, height=190, orientation='horizontal', padding=[0, 1])
         title_box.add_widget(Label(text="CURRENCY CONVERTER PRO", color=(1, 1, 1, 1),
                                   font_size='16sp', bold=True, halign='left', size_hint_x=0.44))
-        settings_btn = ImageButton(source='paramètres.png', size_hint_x=0.1, allow_stretch=True, keep_ratio=True)
+        settings_btn = ImageButton(source='parametres.png', size_hint_x=0.1, allow_stretch=True, keep_ratio=True)
         settings_btn.bind(on_release=self.show_settings)
         title_box.add_widget(settings_btn)
         self.add_widget(title_box)
